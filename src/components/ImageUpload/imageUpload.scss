@@ -1,0 +1,26 @@
+.image-upload {
+  height: 100%;
+
+  #image-drop {
+    border: solid 1px darkgrey;
+    height: 100%;
+    border-radius: .5rem;
+  }
+
+  #input-file-upload {
+    display: none;
+  }
+
+  #label-file-upload {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .5rem;
+    background-color: #f8fafc;
+
+    &.drag-active {
+      background-color: #ffffff;
+    }
+  }
+}
