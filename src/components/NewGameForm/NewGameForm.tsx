@@ -1,6 +1,6 @@
 import ImageUpload from "../ImageUpload/ImageUpload";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Card,
@@ -24,13 +24,8 @@ export interface NewGameFormValues {
   cover?: File
 }
 
-interface Category {
-  id: number
-  category_name: string
-}
-
 const NewGameForm = () => {
-  const [categories , setCategories] = useState<Category[]>([])
+  const [categories , setCategories] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [newGameFormValues, setNewGameFormValues] = useState<NewGameFormValues>({
     gameName: '',
@@ -42,15 +37,16 @@ const NewGameForm = () => {
       .get('http://localhost:3000/category')
       .then(res => setCategories(res.data))
       .catch(err => {
-        console.warn(err)
+        console.error(err)
       })
   }, [])
 
   const handleCategorySelection = (event: SelectChangeEvent) => {
-      const newCategoriesList = categories.filter(category => category.category_name !== event.target.value)
-      setCategories(newCategoriesList)
-      setSelectedCategories([...selectedCategories, event.target.value])
-    // TODO upon selection: deselect menu
+    const newCategoriesList = categories.filter(category => category !== event.target.value)
+    // update selected categories list
+    setCategories(newCategoriesList)
+    setSelectedCategories([...selectedCategories, event.target.value])
+    // TODO upon selection: keep menu open
   }
 
   const handleGameNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +69,8 @@ const NewGameForm = () => {
   const handleDeleteCategory = (selectedCategory: string) => {
     const filteredCategories = selectedCategories.filter(category => category !== selectedCategory)
     setSelectedCategories(filteredCategories)
-    // TODO push deleted category back into categories list
+    // refresh categories selection list
+    setCategories([...categories, selectedCategory])
   }
 
   return (
@@ -125,8 +122,8 @@ const NewGameForm = () => {
                     label={"Catégories"}
                     onChange={handleCategorySelection}
                   >
-                    {categories.map(category => {
-                      return <MenuItem value={category.category_name}>{ category.category_name }</MenuItem>
+                    {categories.map((category, index) => {
+                      return <MenuItem value={category} key={category + index}><p>{ category }</p></MenuItem>
                     })
                     }
                   </Select>
@@ -134,8 +131,12 @@ const NewGameForm = () => {
               </Grid2>
               <Grid2>
                 <Stack spacing={1}>
-                  {selectedCategories.map(selectedCategory => {
-                    return <Chip label={selectedCategory} onDelete={() => handleDeleteCategory(selectedCategory)} />
+                  {selectedCategories.map((selectedCategory, index) => {
+                    return <Chip
+                      label={selectedCategory}
+                      onDelete={() => handleDeleteCategory(selectedCategory)}
+                      key={selectedCategory + index}
+                    />
                   })}
                 </Stack>
               </Grid2>
